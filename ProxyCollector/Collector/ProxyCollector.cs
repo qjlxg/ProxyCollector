@@ -58,11 +58,10 @@ public class ProxyCollector
         }
         // MaxThreadCount is no longer 'required', handles defaults internally now.
         // It's init-only, so we can't assign it here. Validation should be done in CollectorConfig's CreateInstance.
-        // If you need runtime validation here, you'd need to consider a different pattern for MaxThreadCount.
         // For now, relying on CollectorConfig's internal handling for defaults.
     }
 
-    // 改进日志方法，支持日志级别 - 仍然是非静态的，因为它依赖于实例
+    // 改进日志方法，支持日志级别
     private void LogToConsole(string message, LogLevel level = LogLevel.Information)
     {
         ConsoleColor originalColor = Console.ForegroundColor;
@@ -90,7 +89,7 @@ public class ProxyCollector
         LogToConsole("Collector started.");
 
         var collectedProfiles = new ConcurrentBag<ProfileItem>();
-        // Use Parallel.ForEachAsync for concurrent fetching with max degree of parallelism from config
+        // 使用 Parallel.ForEachAsync 进行并发抓取，最大并发数从配置中获取
         await Parallel.ForEachAsync(_config.Sources, new ParallelOptions { MaxDegreeOfParallelism = _config.MaxThreadCount }, async (source, ct) =>
         {
             try
@@ -139,10 +138,10 @@ public class ProxyCollector
         }
 
         LogToConsole("Compiling results...");
-        // Use Task.WhenAll to await all country info tasks
+        // 使用 Task.WhenAll 等待所有国家信息任务完成
         var resultsWithCountryTasks = workingResults
             .Select(r => new { TestResult = r, CountryInfoTask = _ipToCountryResolver.GetCountry(r.Profile.Address!) })
-            .ToList(); // Collect tasks
+            .ToList(); // 收集任务
 
         var compiledResults = (await Task.WhenAll(resultsWithCountryTasks.Select(async item => new { item.TestResult, CountryInfo = await item.CountryInfoTask })))
             .GroupBy(p => p.CountryInfo.CountryCode)
@@ -326,11 +325,11 @@ public class ProxyCollector
 
         var tester = new ParallelUrlTester(
             new SingBoxWrapper(_config.SingboxPath),
-            _config.ConnectionTestPort, // 从配置中获取端口
+            _config.ConnectionTestPort,
             _config.MaxThreadCount,
             (int)_config.Timeout.TotalMilliseconds, // 从 TimeSpan 转换为 int (毫秒)
-            _config.BufferSize, // 从配置中获取缓冲区大小
-            DefaultTestUrl // 使用常量
+            _config.BufferSize,
+            DefaultTestUrl
         );
 
         var workingResults = new ConcurrentBag<UrlTestResult>();
@@ -348,12 +347,10 @@ public class ProxyCollector
                     }
                     else
                     {
-                        // Access 'ErrorMessage' or 'Exception' property for error details, assuming UrlTestResult has it.
-                        // Based on the error CS1061: 'UrlTestResult' does not contain a definition for 'Error',
-                        // this property might be named differently (e.g., 'ErrorMessage' or 'Exception.Message').
-                        // I'm assuming 'ErrorMessage' for now. If that also doesn't exist, you'll need to check
-                        // the actual definition of UrlTestResult in SingBoxLib.Runtime.Testing.
-                        LogToConsole($"Profile '{result.Profile.Name}' failed test. Reason: {result.ErrorMessage ?? result.Exception?.Message ?? "Unknown error"}", LogLevel.Debug);
+                        // 修正：由于 UrlTestResult 没有 ErrorMessage 或 Exception 属性，
+                        // 我们暂时提供一个通用的失败信息。
+                        // 如果需要更详细的错误，需要查看 SingBoxLib 库中 UrlTestResult 的实际定义。
+                        LogToConsole($"Profile '{result.Profile.Name}' failed test. Reason: Test unsuccessful.", LogLevel.Debug);
                     }
                 }),
                 default // CancellationToken
@@ -379,26 +376,12 @@ public class ProxyCollector
         catch (FormatException)
         {
             // 如果不是有效的 Base64 字符串，忽略此异常，直接使用原始内容
-            // LogToConsole($"Content from {sourceUrl} is not valid Base64, processing as plain text.", LogLevel.Debug);
+            // 如果需要记录，可以使用 Console.WriteLine
+            // Console.WriteLine($"{DateTime.Now.ToString(LogTimeFormat)} - DEBUG - Content from {sourceUrl} is not valid Base64, processing as plain text.");
         }
         catch (Exception ex)
         {
-            // 其他未知解码错误
-            // This LogToConsole call needs to be static if TryParseSubContent is static.
-            // For now, I'll remove it or make TryParseSubContent non-static again if it needs logging.
-            // Let's make it non-static for now to use LogToConsole.
-            // However, the original prompt asked to make it static.
-            // To resolve CS0120, if TryParseSubContent is static, it cannot call non-static LogToConsole.
-            // Option 1: Pass a logger instance to this static method.
-            // Option 2: Make this method non-static again.
-            // Option 3: Use Console.WriteLine directly for logging inside this static method.
-            // Given the context, the easiest fix to maintain the static nature is to use Console.WriteLine directly,
-            // or pass an Action<string, LogLevel> as a delegate for logging.
-            // Let's revert it to non-static to use existing LogToConsole directly for simplicity.
-            // If it *must* be static, we'd need a different logging approach here.
-            // For the purpose of fixing the immediate compile errors, making it non-static is quicker.
-            // LogToConsole($"Error decoding Base64 content from {sourceUrl}: {ex.Message}", LogLevel.Warning);
-            // LogToConsole($"Full decoding exception: {ex}", LogLevel.Debug);
+            // 其他未知解码错误，直接使用 Console.WriteLine 记录
             Console.WriteLine($"{DateTime.Now.ToString(LogTimeFormat)} - WARNING - Error decoding Base64 content from {sourceUrl}: {ex.Message}");
             Console.WriteLine($"{DateTime.Now.ToString(LogTimeFormat)} - DEBUG - Full decoding exception: {ex}");
         }
@@ -417,9 +400,6 @@ public class ProxyCollector
             catch (Exception ex)
             {
                 // 记录解析失败的行和错误信息
-                // This also needs to be static if TryParseSubContent is static.
-                // Reverting TryParseSubContent to non-static as it was originally.
-                // LogToConsole($"Failed to parse profile URL from line: '{line}' (Source: {sourceUrl}). Error: {ex.Message}", LogLevel.Debug);
                 Console.WriteLine($"{DateTime.Now.ToString(LogTimeFormat)} - DEBUG - Failed to parse profile URL from line: '{line}' (Source: {sourceUrl}). Error: {ex.Message}");
             }
 
