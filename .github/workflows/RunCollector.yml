@@ -24,6 +24,23 @@ jobs:
       SingboxFormatResultPath: sub/singbox.json
       Sources: |
        https://raw.githubusercontent.com/qjlxg/ss/refs/heads/master/list.meta.yml
+       https://igdux.top/~250630
+       https://igdux.top/~250701-534
+       https://igdux.top/~250717
+       https://igdux.top/~250719
+       https://igdux.top/~ha_250718
+       https://igdux.top/RDpP
+       https://igdux.top/XGEN
+       https://igdux.top/zzCe
+       https://raw.githubusercontent.com/qjlxg/aggregator/refs/heads/main/data/520.yaml
+       https://raw.githubusercontent.com/qjlxg/aggregator/refs/heads/main/ss.txt
+       https://raw.githubusercontent.com/qjlxg/collectSub/refs/heads/main/config_all_merged_nodes.txt
+       https://raw.githubusercontent.com/qjlxg/collectSub/refs/heads/main/output/all_nodes.txt
+       https://raw.githubusercontent.com/qjlxg/ha/refs/heads/main/data/all_unique_nodes.txt
+       https://raw.githubusercontent.com/qjlxg/ha/refs/heads/main/merged_configs.txt
+       https://raw.githubusercontent.com/qjlxg/hy2/refs/heads/main/configtg.txt
+       https://raw.githubusercontent.com/qjlxg/ss/refs/heads/master/list_raw.txt
+       https://raw.githubusercontent.com/qjlxg/vt/refs/heads/main/data/nodes.txt
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET
