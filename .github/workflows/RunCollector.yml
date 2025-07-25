@@ -24,10 +24,8 @@ jobs:
       SingboxFormatResultPath: sub/singbox.json
       Sources: |
          https://raw.githubusercontent.com/qjlxg/ss/refs/heads/master/list_raw.txt
-      #   https://raw.githubusercontent.com/qjlxg/aggregator/refs/heads/main/ss.txt
-      #0  https://raw.githubusercontent.com/qjlxg/hy2/refs/heads/main/configtg.txt
-      #0 https://raw.githubusercontent.com/qjlxg/ha/refs/heads/main/merged_configs.txt
-      # https://raw.githubusercontent.com/qjlxg/ha/refs/heads/main/data/all_unique_nodes.txt
+         https://raw.githubusercontent.com/qjlxg/aggregator/refs/heads/main/ss.txt
+         https://raw.githubusercontent.com/qjlxg/ha/refs/heads/main/data/all_unique_nodes.txt
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET
