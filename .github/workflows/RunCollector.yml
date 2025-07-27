@@ -23,7 +23,6 @@ jobs:
       V2rayFormatResultPath: sub/proxies.txt
       SingboxFormatResultPath: sub/singbox.json
       Sources: |
-          
           https://raw.githubusercontent.com/qjlxg/ss/refs/heads/master/list_raw.txt
           https://raw.githubusercontent.com/qjlxg/aggregator/refs/heads/main/ss.txt
           https://raw.githubusercontent.com/qjlxg/ha/refs/heads/main/data/all_unique_nodes.txt
